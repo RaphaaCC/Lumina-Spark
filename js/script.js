@@ -35,10 +35,12 @@
         function status() {
             const elemento = document.createElement('span');
             elemento.className = 'lumina-status';
+            elemento.hidden = true;
+            elemento.setAttribute('role', 'status');
             elemento.innerHTML = `
-                <span class="lumina-spinner" aria-hidden="true"></span>
-                <span class="lumina-falha" aria-hidden="true">
-                    <span class="lumina-falha-icone">×</span>
+                <span class="lumina-spinner" aria-hidden="true" hidden></span>
+                <span class="lumina-falha" hidden>
+                    <span class="lumina-falha-icone" aria-hidden="true">×</span>
                     Não foi possível carregar
                 </span>`;
             return elemento;
@@ -68,10 +70,14 @@
             if (!contorno?.isConnected) return;
             contorno.classList.remove('lumina-pendente', 'lumina-carregando', 'lumina-pronta', 'lumina-erro');
             contorno.classList.add(`lumina-${estado}`);
-            contorno.setAttribute('aria-busy', estado === 'carregando' ? 'true' : 'false');
+            const carregando = estado === 'carregando';
+            const erro = estado === 'erro';
+            contorno.setAttribute('aria-busy', String(carregando));
             const indicador = contorno.querySelector(':scope > .lumina-status');
             if (indicador) {
-                indicador.setAttribute('aria-label', estado === 'erro' ? 'Falha ao carregar mídia' : estado === 'carregando' ? 'Carregando mídia' : '');
+                indicador.querySelector('.lumina-spinner').hidden = !carregando;
+                indicador.querySelector('.lumina-falha').hidden = !erro;
+                indicador.hidden = !carregando && !erro;
             }
         }
 
@@ -85,52 +91,28 @@
             if (fonte === '|') return; // Imagens com data-src ainda não devem iniciar carga.
 
             const contorno = quadro(img);
-            let dados = registro.get(img);
+            if (!registro.has(img)) {
+                const atualizar = () => {
+                    if (!img.complete) return;
+                    const atual = img.closest('.lumina-midia');
+                    mudarEstado(atual, img.naturalWidth ? 'pronta' : 'erro');
+                };
 
-            if (!dados) {
-                dados = { fonte: null, versao: 0 };
-                registro.set(img, dados);
-
-                img.addEventListener('load', () => {
-                    if (!img.naturalWidth) return;
-                    const versao = dados.versao;
-                    // Aguarda decodificação sem executá-la mais de uma vez por mudança de fonte.
-                    const decodificar = typeof img.decode === 'function' ? img.decode() : Promise.resolve();
-                    Promise.resolve(decodificar).catch(() => {}).then(() => {
-                        if (img.isConnected && dados.versao === versao) {
-                            mudarEstado(contorno, 'pronta');
-                        }
-                    });
-                });
-
-                img.addEventListener('error', () => {
-                    if (img.isConnected) mudarEstado(contorno, 'erro');
-                });
+                img.addEventListener('load', atualizar);
+                img.addEventListener('error', atualizar);
             }
 
-            if (dados.fonte === fonte) return;
-            dados.fonte = fonte;
-            dados.versao++;
+            if (registro.get(img) === fonte) return;
+            registro.set(img, fonte);
             mudarEstado(contorno, 'carregando');
 
-            if (img.complete && img.naturalWidth) {
-                // O recurso pode já estar no cache antes da instalação dos eventos.
-                const versao = dados.versao;
-                Promise.resolve(typeof img.decode === 'function' ? img.decode() : undefined)
-                    .catch(() => {})
-                    .then(() => {
-                        if (img.isConnected && dados.versao === versao) {
-                            mudarEstado(contorno, 'pronta');
-                        }
-                    });
-            } else if (img.complete && img.loading !== 'lazy') {
-                // Um erro já ocorrido antes da inicialização também recebe o X vermelho.
-                queueMicrotask(() => {
-                    if (img.isConnected && dados.fonte === fonte && img.complete && !img.naturalWidth) {
-                        mudarEstado(contorno, 'erro');
-                    }
-                });
-            }
+            // O evento pode ter ocorrido antes da inicialização, por exemplo com cache.
+            queueMicrotask(() => {
+                if (registro.get(img) !== fonte || !img.complete) return;
+                if (img.naturalWidth || img.loading !== 'lazy') {
+                    mudarEstado(contorno, img.naturalWidth ? 'pronta' : 'erro');
+                }
+            });
         }
 
         function prepararVideo(video) {
@@ -139,7 +121,6 @@
 
             const contorno = quadro(video);
             registro.set(video, { video: true });
-            contorno.classList.add('video-wrapper');
 
             // A prévia não baixa o vídeo: a transferência ocorre só ao ampliar.
             video.pause();
@@ -238,11 +219,7 @@
                 media.alt = descricao || 'Imagem ampliada';
                 media.decoding = 'async';
                 media.addEventListener('load', () => {
-                    Promise.resolve(typeof media.decode === 'function' ? media.decode() : undefined)
-                        .catch(() => {})
-                        .then(() => {
-                            if (midiaLightbox === media) mudarEstado(quadroLightbox, 'pronta');
-                        });
+                    if (midiaLightbox === media) mudarEstado(quadroLightbox, 'pronta');
                 });
                 media.addEventListener('error', () => {
                     if (midiaLightbox === media) mudarEstado(quadroLightbox, 'erro');
@@ -261,7 +238,6 @@
             if (midia.dataset.lightboxBound === 'true') return;
 
             midia.dataset.lightboxBound = 'true';
-            midia.style.cursor = 'zoom-in';
             midia.tabIndex = 0;
             const abrir = () => {
                 if (midia.closest('.lumina-midia')?.classList.contains('lumina-erro')) return;
@@ -283,6 +259,7 @@
         function examinar(raizAtual) {
             if (!(raizAtual instanceof Element || raizAtual === document)) return;
             if (raizAtual.matches?.('img, video')) prepararMidia(raizAtual);
+            if (raizAtual.matches?.('video source')) prepararMidia(raizAtual.closest('video'));
             raizAtual.querySelectorAll?.('img[src], img[srcset], video[src], video source')
                 .forEach(elemento => {
                     if (elemento.tagName === 'SOURCE') {
