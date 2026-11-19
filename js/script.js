@@ -11,7 +11,10 @@
 
         container.innerHTML = `
             <header class="cabecalho">
-                <a class="logo" data-rota="index.html">Lumina Spark</a>
+                <div class="marca-cabecalho">
+                    <a class="logo" data-rota="index.html">Lumina Spark</a>
+                    <p class="assinatura-cabecalho">by Raphael Cherfem Carlini &amp; Christopher Roberto Messias</p>
+                </div>
                 <nav class="menu-superior" aria-label="Menu do site">
                     <a data-rota="index.html">Início</a>
                     <a data-rota="p/historia_da_fotografia.html">História</a>
