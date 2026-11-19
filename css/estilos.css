@@ -138,6 +138,25 @@ select {
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
 }
 
+.rodape {
+    display: grid;
+    gap: 6px;
+    padding: 24px 16px;
+    border-top: 1px solid rgba(255, 77, 77, 0.5);
+    background: #111;
+    color: #e5e5e5;
+    text-align: center;
+}
+
+.rodape p {
+    margin: 0;
+}
+
+.rodape-escola {
+    color: var(--cor-texto);
+    font-weight: 700;
+}
+
 .menu-superior {
     display: flex;
     align-items: center;

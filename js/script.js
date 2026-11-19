@@ -28,6 +28,18 @@
         });
     }
 
+    function criarRodape() {
+        const container = document.getElementById('footer-container');
+        if (!container) return;
+
+        container.innerHTML = `
+            <footer class="rodape">
+                <p class="rodape-escola">Etec Prof. Armando Bayeux da Silva</p>
+                <p>Professores Valdeci Ansanello e Débora Regina de Paula Vazzoler</p>
+                <p><small>© Raemi Labs</small></p>
+            </footer>`;
+    }
+
     function inicializarMidias() {
         const registro = new WeakMap();
         let lightbox = null;
@@ -314,6 +326,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         criarCabecalho();
+        criarRodape();
         inicializarMidias();
     });
 })();
