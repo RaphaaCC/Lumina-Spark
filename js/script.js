@@ -35,7 +35,7 @@
         container.innerHTML = `
             <footer class="rodape">
                 <p class="rodape-escola">Etec Prof. Armando Bayeux da Silva</p>
-                <p>Professores Valdeci Ansanello e Débora Regina de Paula Vazzoler</p>
+                <p>Professores Valdeci Ançanello e Débora Regina de Paula Vazzoler</p>
                 <p><small>© Raemi Labs</small></p>
             </footer>`;
     }
