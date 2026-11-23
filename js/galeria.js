@@ -140,7 +140,6 @@ const fotografiasUrls = {
         'https://images.squarespace-cdn.com/content/v1/66292f46d516e90d8b456e92/e3e1f940-fe05-48bd-98bb-edfb097a2326/DSC09937.jpg?format=1000w',
         'https://cdn.prod.website-files.com/682214eb0279b953919f1b61/687a161dbaacf6bb41a98482_pexels-madbyte-67386.jpg',
 
-        // 50 fotografias adicionais
         'https://s.hdnux.com/photos/01/55/32/10/28680730/3/rawImage.jpg',
         'https://cdn.mos.cms.futurecdn.net/qbF3QgyWwgXGLNnfcPK73N.jpg',
         'https://www.activesgcircle.gov.sg/hs-fs/hubfs/20251213_Swimming-AC-025.jpg?height=2667&name=20251213_Swimming-AC-025.jpg&width=4000',

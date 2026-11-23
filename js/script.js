@@ -1,4 +1,4 @@
-/* Lumina Spark — mídias e lightbox. Versão otimizada, sem CSS injetado. */
+/* Inicializa a navegação, o carregamento de mídias e o lightbox. */
 (() => {
     'use strict';
 
