@@ -619,6 +619,16 @@ select {
     padding: 0 0 80px;
 }
 
+.equipe-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 550px;
+    margin: 0 auto;
+}
+
+.equipe-grid + h2 {
+    margin-top: 56px;
+}
+
 .equipe-pessoa {
     min-width: 0;
     margin: 0;
